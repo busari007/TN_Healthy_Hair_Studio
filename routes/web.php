@@ -9,12 +9,14 @@ Route::get('/', function () {
     return view('homepage');
 })->name('home');
 
+Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::get('/admin/users', function () {
     return view('welcome');
 })->name('admin.users');
 Route::get('/admin', function () {
     return view('bookings');
 })->name('admin.booking');
+});
 
 Route::middleware([
     'auth:sanctum',

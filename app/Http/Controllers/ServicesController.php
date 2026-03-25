@@ -6,37 +6,47 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\Booking;
+use App\Notifications\GeneralNotification;
+use App\Models\User;
+use App\Mail\BookingCreatedMail;
+use App\Mail\BookingStatusMail;
+use Illuminate\Support\Facades\Mail;
 
 class ServicesController extends Controller
 {
-public function bookedDates()
-{
+public function bookedDates() {
     $bookings = \App\Models\Booking::where('status', 'approved')->get();
-
     $grouped = [];
-
+    
     foreach ($bookings as $b) {
         $key = "{$b->day}-{$b->month}-{$b->year}";
         $grouped[$key][$b->staff][] = $b->time;
     }
 
     $fullyBookedDates = [];
+    $staffList = ['Mrs Ebun', 'Stephanie', 'Ayomide'];
+    $slots = ['9:00AM', '12:00PM'];
 
     foreach ($grouped as $key => $staffBookings) {
+        [$day, $month, $year] = explode('-', $key);
         $allStaffFull = true;
 
-        foreach (['Mrs Ebun', 'Stephanie', 'Ayomide'] as $staff) {
-            $times = $staffBookings[$staff] ?? [];
-
-            if (!(in_array('9:00AM', $times) && in_array('12:00PM', $times))) {
-                $allStaffFull = false;
-                break;
+        foreach ($staffList as $staff) {
+            $bookedTimes = $staffBookings[$staff] ?? [];
+            
+            foreach ($slots as $slot) {
+                // Create a Carbon instance for the specific slot
+                $slotTime = \Carbon\Carbon::createFromFormat('j-n-Y g:iA', "$key $slot");
+                
+                // If slot is NOT booked AND is more than 12 hours away, it's available
+                if (!in_array($slot, $bookedTimes) && $slotTime->gt(now()->addHours(12))) {
+                    $allStaffFull = false;
+                    break 2; // Break both loops, this date is available
+                }
             }
         }
 
         if ($allStaffFull) {
-            [$day, $month, $year] = explode('-', $key);
-
             $fullyBookedDates[] = [
                 'day' => (int)$day,
                 'month' => (int)$month,
@@ -45,53 +55,100 @@ public function bookedDates()
         }
     }
 
-    return response()->json([
-        'bookedDates' => $fullyBookedDates
-    ]);
+    return response()->json(['bookedDates' => $fullyBookedDates]);
 }
 
-
-public function checkStaffAvailability(Request $request)
+public function checkStaffAvailability(Request $request) 
 {
     $staff = $request->staff;
+    $day = $request->day;
+    $month = $request->month;
+    $year = $request->year;
 
-    $bookings = \App\Models\Booking::where([
+    // 1. Get actual approved bookings from the database
+    $bookedInDb = \App\Models\Booking::where([
         'staff' => $staff,
-        'day' => $request->day,
-        'month' => $request->month,
-        'year' => $request->year,
+        'day' => $day,
+        'month' => $month,
+        'year' => $year,
         'status' => 'approved',
-    ])->pluck('time')->map(function ($time) {
-    return strtoupper(str_replace(' ', '', $time));
-});
+    ])
+    ->pluck('time')
+    ->map(fn($time) => strtoupper(str_replace(' ', '', $time)))
+    ->toArray();
+
+    // 2. Define your standard working slots
+    $availableSlots = ['9:00AM', '12:00PM'];
+    $finalBookedTimes = $bookedInDb;
+
+    // 3. Logic: If a slot is < 12 hours away, treat it as "booked" (unavailable)
+    foreach ($availableSlots as $slot) {
+        try {
+            // Create a timestamp for the specific slot
+            $slotDateTime = \Carbon\Carbon::createFromFormat('j-n-Y g:iA', "$day-$month-$year $slot");
+
+            // If the slot is in the past OR less than 12 hours from now
+            if ($slotDateTime->lt(now()->addHours(12))) {
+                if (!in_array($slot, $finalBookedTimes)) {
+                    $finalBookedTimes[] = $slot;
+                }
+            }
+        } catch (\Exception $e) {
+            // Handle invalid date formats if necessary
+            continue;
+        }
+    }
 
     return response()->json([
-        'bookedTimes' => $bookings
+        'bookedTimes' => array_values(array_unique($finalBookedTimes)),
+        'message' => 'Some slots may be hidden because they require 12 hours notice.'
     ]);
 }
 
-public function bookedTimes(Request $request)
-{
-    $bookings = \App\Models\Booking::where([
-        'staff'  => $request->staff,
-        'day'    => $request->day,
-        'month'  => $request->month,
-        'year'   => $request->year,
-        'status' => 'approved', // 👈 Only pull approved bookings
-    ])
-    ->pluck('time')
-    ->map(function ($time) {
-        return strtoupper(str_replace(' ', '', $time));
-    });
+public function bookedTimes(Request $request) {
+    $day = $request->day;
+    $month = $request->month;
+    $year = $request->year;
+
+    // 1. Get actual approved bookings
+    $bookedInDb = \App\Models\Booking::where([
+        'staff' => $request->staff,
+        'day' => $day,
+        'month' => $month,
+        'year' => $year,
+        'status' => 'approved',
+    ])->pluck('time')->map(fn($t) => strtoupper(str_replace(' ', '', $t)))->toArray();
+
+    // 2. Define your standard slots
+    $allSlots = ['9:00AM', '12:00PM'];
+    $finalBookedTimes = $bookedInDb;
+
+    // 3. Add slots to the "booked" list if they are within 12 hours from now
+    foreach ($allSlots as $slot) {
+        $slotDateTime = \Carbon\Carbon::createFromFormat('j-n-Y g:iA', "$day-$month-$year $slot");
+        
+        if ($slotDateTime->lt(now()->addHours(12)) && !in_array($slot, $finalBookedTimes)) {
+            $finalBookedTimes[] = $slot;
+        }
+    }
 
     return response()->json([
-        'bookedTimes' => $bookings
+        'bookedTimes' => $finalBookedTimes,
+        'message' => 'Slots within 12 hours are unavailable.'
     ]);
 }
 
 public function store(Request $request)
 {
-    try {
+    $requestedTime = "{$request->day}-{$request->month}-{$request->year} {$request->time}";
+    $bookingWindow = \Carbon\Carbon::createFromFormat('j-n-Y g:iA', $requestedTime);
+
+    if ($bookingWindow->lt(now()->addHours(12))) {
+        return response()->json([
+            'error' => 'Bookings must be made at least 12 hours in advance.'
+        ], 422);
+    }
+
         $booking = \App\Models\Booking::create([
             'service' => $request->service,
             'amount' => (int) $request->amount, // Force to integer
@@ -104,13 +161,50 @@ public function store(Request $request)
             'status' => 'pending',
         ]);
 
+        try {
+        $user = Auth::user();
+        
+        // 1. Prepare Base Details
+        $details = [
+            'title'   => $request->service,
+            'message' => "{$user->name} booked for {$request->day}/{$request->month}/{$request->year} at {$request->time}",
+            'by'      => $user->name,
+            'amount'  => '₦' . number_format($request->amount),
+        ];
+
+// 1. Identify Recipients: Anyone with the role 'admin' OR the specific staff member
+$recipients = User::where('role', 'admin')
+    ->orWhere('name', $request->staff)
+    ->get();
+
+// 2. Send notifications with custom URLs based on their role
+foreach ($recipients as $recipient) {
+    $notificationData = $details;
+    
+    // Check if the user has the 'admin' role for the URL
+    if ($recipient->role === 'admin') {
+        $notificationData['url'] = '/admin'; 
+    } else {
+        $notificationData['url'] = '/bookings/list';
+    }
+
+    $recipient->notify(new GeneralNotification($notificationData));
+}
+
+ $recipients = \App\Models\User::where('role', 'admin')
+            ->orWhere('name', $request->staff)
+            ->pluck('email')
+            ->toArray();
+
+        // 2. Send the Mail
+        if (!empty($recipients)) {
+            Mail::to($recipients)->send(new BookingCreatedMail($booking));
+        }
+
         return response()->json(['success' => true]);
 
     } catch (\Exception $e) {
-        // This will return the REAL error message to your browser console
-        return response()->json([
-            'error' => $e->getMessage() 
-        ], 400);
+        return response()->json(['error' => $e->getMessage()], 400);
     }
 }
 
@@ -118,20 +212,27 @@ public function getBookings(Request $request)
 {
     if ($request->ajax()) {
         $user = Auth::user();
-        $query = \App\Models\Booking::select(['id', 'service', 'staff', 'day', 'month', 'year', 'time', 'status', 'user_id', 'created_at']);
+        
+        // 1. Add ->latest() here to order by created_at DESC
+        $query = \App\Models\Booking::select(['id', 'service', 'staff', 'day', 'month', 'year', 'time', 'status', 'user_id', 'created_at'])
+            ->latest(); 
 
-        // ... existing role filtering logic ...
+        // Filter based on Role
+        if ($user->role === 'admin') {
+            // Admins see everything
+        } elseif ($user->role === 'staff') {
+            $query->where('staff', $user->name); 
+        } else {
+            $query->where('user_id', $user->id);
+        }
 
         return DataTables::of($query)
             ->addIndexColumn()
             ->editColumn('date', function($row){
                 return "{$row->day}/{$row->month}/{$row->year}";
             })
-            // Style the status column with Tailwind Badges
             ->editColumn('status', function($row) {
                 $status = strtolower($row->status);
-                
-                // Define colors based on status
                 $classes = match($status) {
                     'approved' => 'bg-green-100 text-green-700 border-green-200',
                     'rejected' => 'bg-red-100 text-red-700 border-red-200',
@@ -146,7 +247,6 @@ public function getBookings(Request $request)
             ->addColumn('action', function($row) {
                 return view('partials.booking-actions', compact('row'))->render();
             })
-            // Important: Tell DataTables to render the HTML for both columns
             ->rawColumns(['status', 'action']) 
             ->make(true);
     }
@@ -157,34 +257,68 @@ public function getBookings(Request $request)
 
 public function updateStatus($id, Request $request)
 {
-    // 1. Validate the incoming status
     $request->validate([
         'status' => 'required|in:approved,rejected'
     ]);
 
-    // 2. Find the booking
     $booking = \App\Models\Booking::findOrFail($id);
+    $currentUser = Auth::user();
 
-    // 3. Prevent re-processing if already approved or rejected
     if ($booking->status !== 'pending') {
-        return response()->json([
-            'error' => 'This booking has already been ' . $booking->status . ' and cannot be changed.'
-        ], 422); // 422 Unprocessable Entity
+        return response()->json(['error' => 'This booking is already ' . $booking->status], 422);
     }
 
-    // 4. Security check for Staff
-    if (Auth::user()->role === 'staff' && $booking->staff !== Auth::user()->name) {
+    if ($currentUser->role === 'staff' && $booking->staff !== $currentUser->name) {
         return response()->json(['error' => 'You can only manage your own bookings.'], 403);
     }
 
-    // 5. Update and Save
     $booking->status = $request->status;
     $booking->save();
+
+    // --- NOTIFICATION & MAIL LOGIC ---
+
+    // 1. Notify the Client (Notification + Mail)
+    $client = User::find($booking->user_id);
+    if ($client) {
+        $client->notify(new GeneralNotification([
+            'title'   => "Booking " . ucfirst($request->status),
+            'message' => "The {$booking->service} for {$booking->day}/{$booking->month} has been {$request->status}.",
+            'by'      => $currentUser->name,
+            'amount'  => '₦' . number_format($booking->amount),
+            'url'     => '/bookings'
+        ]));
+        
+        // Send status email to client
+        Mail::to($client->email)->send(new BookingStatusMail($booking));
+    }
+
+    // 2. Identify Other Recipients for Mail (Admins and Assigned Staff)
+    // We get admins and the specific staff member assigned to the booking
+    $staffAndAdmins = User::where('role', 'admin')
+        ->orWhere('name', $booking->staff)
+        ->get();
+
+    foreach ($staffAndAdmins as $recipient) {
+        // Send In-App Notification (exclude the person who performed the action)
+        if ($recipient->id !== $currentUser->id) {
+            $recipient->notify(new GeneralNotification([
+                'title'   => "Booking Update",
+                'message' => "{$booking->service} for {$booking->day}/{$booking->month} is now {$request->status}.",
+                'by'      => $currentUser->name,
+                'amount'  => '₦' . number_format($booking->amount),
+                'url'     => $recipient->role === 'admin' ? '/admin' : '/bookings/list'
+            ]));
+        }
+
+        // Send Email to Admins and Staff (Always keep them in the loop)
+        Mail::to($recipient->email)->send(new BookingStatusMail($booking));
+    }
 
     return response()->json([
         'success' => true,
         'message' => 'Booking ' . ucfirst($request->status) . ' successfully!'
     ]);
 }
+
 
 }

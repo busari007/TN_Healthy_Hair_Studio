@@ -14,7 +14,16 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <!-- Styles -->
+        <!-- ✅ Toast and Notification Styles -->
+        <style>
+            .toast { animation: slideIn 0.3s ease-out; }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            [x-cloak] { display: none !important; }
+        </style>
+
         @livewireStyles
     </head>
     <body class="font-sans antialiased">
@@ -23,7 +32,6 @@
         <div class="min-h-screen bg-gray-100">
             @livewire('navigation-menu')
 
-            <!-- Page Heading -->
             @if (isset($header))
                 <header class="bg-white shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -32,14 +40,79 @@
                 </header>
             @endif
 
-            <!-- Page Content -->
             <main>
                 @yield('content')
             </main>
         </div>
 
-        @stack('modals')
+        <!-- ✅ FLOATING NOTIFICATION BELL -->
+        @auth
+            <div x-data="{ open: false }" class="fixed bottom-6 right-6 z-50" @click.outside="open = false" x-cloak>
+                
+                <!-- PULSE RING (Only if unread exists) -->
+                @if(auth()->user()->unreadNotifications->count() > 0)
+                    <div x-show="!open" class="absolute inset-0 rounded-full bg-red-500 opacity-75 animate-ping"></div>
+                @endif
 
+                <!-- BUTTON -->
+                <button @click="open = !open" class="relative flex items-center justify-center w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-2xl transition transform hover:scale-110">
+                    <svg xmlns="http://www.w3.org" 
+                         class="h-8 w-8 {{ auth()->user()->unreadNotifications->count() > 0 ? 'animate-bounce' : '' }}" 
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 01-6 0h6z"/>
+                    </svg>
+                    
+                    @if(auth()->user()->unreadNotifications->count() > 0)
+                        <span class="absolute -top-1 -right-1 bg-white text-red-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow">
+                            {{ auth()->user()->unreadNotifications->count() }}
+                        </span>
+                    @endif
+                </button>
+
+                <!-- DROPDOWN -->
+                <div x-show="open" 
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                     class="absolute bottom-20 right-0 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 border border-gray-100 dark:border-gray-700">
+                    
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold dark:text-white text-sm">Notifications</h3>
+                        @if(auth()->user()->unreadNotifications->isNotEmpty())
+                            <form method="POST" action="{{ route('notifications.readAll') }}">
+                                @csrf
+                                <button type="submit" class="text-[10px] uppercase font-bold text-indigo-600 hover:underline">Clear All</button>
+                            </form>
+                        @endif
+                    </div>
+
+                    <div class="max-h-64 overflow-y-auto">
+                        @forelse(auth()->user()->notifications()->latest()->take(10)->get() as $notification)
+                            <div class="border-b last:border-0 dark:border-gray-700 py-2 px-2 {{ is_null($notification->read_at) ? 'bg-blue-50 dark:bg-gray-700/50' : '' }} rounded mb-1">
+                                <form method="POST" action="{{ route('notifications.read', $notification->id) }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left">
+                                        <p class="font-bold text-xs dark:text-gray-200">{{ $notification->data['title'] ?? 'Update' }}</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-[11px] leading-tight">{{ $notification->data['message'] ?? '' }}</p>
+                                        <div class="flex justify-between mt-1">
+                                            <span class="text-[9px] font-medium text-indigo-500 uppercase">{{ $notification->data['amount'] ?? '' }}</span>
+                                            <span class="text-[9px] text-gray-400">{{ $notification->created_at->diffForHumans() }}</span>
+                                        </div>
+                                    </button>
+                                </form>
+                            </div>
+                        @empty
+                            <p class="text-gray-400 text-xs py-4 text-center">No notifications yet</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        @endauth
+
+        <!-- ✅ TOAST CONTAINER -->
+        <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
+        @stack('modals')
         @livewireScripts
     </body>
 </html>

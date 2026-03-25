@@ -23,6 +23,7 @@
             <th class="pb-4 font-black">Staff</th>
             <th class="pb-4 font-black text-center">Date</th>
             <th class="pb-4 font-black text-center">Time</th>
+            <th class="pb-4 font-black text-center">Booked On</th>
             <th class="pb-4 font-black text-center">Status</th>
             @if(auth()->user()->role === 'admin' || auth()->user()->role === 'staff')
                 <th class="pb-4 font-black text-center">Actions</th>
@@ -87,6 +88,17 @@
             { data: 'staff', name: 'staff' },
             { data: 'date', name: 'date', className: 'text-center' },
             { data: 'time', name: 'time', className: 'text-center' },
+            { 
+                data: 'created_at', 
+                name: 'created_at', 
+                className: 'text-center text-xs text-gray-400',
+                render: function(data) {
+                    // Formats the date nicely in the browser
+                    return new Date(data).toLocaleDateString('en-GB', {
+                        day: '2-digit', month: 'short', year: 'numeric'
+                    });
+                }
+            },
             { data: 'status', name: 'status', className: 'text-center' },
         ];
 
@@ -105,6 +117,8 @@
             serverSide: true,
             responsive: true,
             ajax: "{{ route('bookings') }}",
+            // Sort by 'Booked On' (index 5) descending by default
+            order: [[5, 'desc']], 
             language: {
                 search: "_INPUT_",
                 searchPlaceholder: "Search records...",
@@ -112,7 +126,6 @@
             },
             columns: columns
         });
-
     });
 
     function updateStatus(bookingId, status) {
