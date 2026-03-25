@@ -18,7 +18,10 @@ use Illuminate\Database\Eloquent\Model;
         'user_id',
         'email',
         'status',
-        'reminder_sent'
+        'reminder_sent',
+        'payment_reference',
+        'refund_id',
+        'is_refunded'
     ];
 
     public function user()

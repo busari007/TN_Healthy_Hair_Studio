@@ -29,6 +29,7 @@
         .animate-bounce-slow {
             animation: bounce 2s infinite;
         }
+    [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="font-sans antialiased">

@@ -22,10 +22,16 @@ class SendBookingReminders extends Command
                        ->get();
 
     foreach ($bookings as $booking) {
-        $bookingTime = Carbon::createFromFormat('j-n-Y g:iA', "{$booking->day}-{$booking->month}-{$booking->year} {$booking->time}");
+    $bookingString = "{$booking->day}-{$booking->month}-{$booking->year} {$booking->time}";
+    $bookingTime = \Carbon\Carbon::createFromFormat('j-n-Y g:iA', $bookingString);
+
+    $hoursDiff = now()->diffInHours($bookingTime, false);
+    
+    // DEBUG: This prints to your terminal when you run the command
+    $this->info("Checking Booking #{$booking->id}: {$hoursDiff} hours away.");
 
         // Check if the appointment is within the 12-hour window
-        if (now()->diffInHours($bookingTime, false) <= 12 && now()->isBefore($bookingTime)) {
+        if (now()->diffInHours($bookingTime, false) <= 13 && now()->isBefore($bookingTime)) {
                
                 // Collect Recipients
                 $emails = [];

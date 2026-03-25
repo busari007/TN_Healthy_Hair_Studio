@@ -35,7 +35,7 @@
                     </tr>
                     <tr>
                         <td class="label">Customer</td>
-                        <td class="value" align="right">{{ auth()->user()->name }}</td>
+                        <td class="value" align="right">{{ $booking->user->name }}</td>
                     </tr>
                     <tr>
                         <td class="label">Date</td>

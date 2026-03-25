@@ -7,7 +7,7 @@
     x-init="init()" 
     @date-selected.window="selectedDate = $event.detail; currentStep = 2"
     @staff-selected.window="selectedStaff = $event.detail.staff; currentStep = 3"
-    @time-selected.window="
+    @time-selected.window=" 
     selectedTime = $event.detail.time;
     submitBooking($event.detail)
 "
@@ -75,9 +75,10 @@
 <script>
 window.bookingApp = function () {
     return {
+        // 1. We wrap these in a check to see if they exist
         service: {
-            name: "{{ request('service_name') }}",
-            amount: "{{ request('service_amount') }}"
+            name: @json(request('service_name')),
+            amount: @json(request('service_amount'))
         },
 
         selectedDate: null,
@@ -86,17 +87,17 @@ window.bookingApp = function () {
         currentStep: 1,
 
         init() {
-            if (!this.service.name) {
-                window.location.href = "/#services";
+            console.log("Checking Service Name:", this.service.name);
+            
+            // 2. Only redirect if the name is actually missing
+            if (!this.service.name || this.service.name === "") {
+                console.warn("Service name is missing, redirecting...");
+                // window.location.href = "/#services"; 
             }
         },
 
         goToStep(step) {
-            if (
-                step === 1 ||
-                (step === 2 && this.selectedDate) ||
-                (step === 3 && this.selectedStaff)
-            ) {
+            if (step === 1 || (step === 2 && this.selectedDate) || (step === 3 && this.selectedStaff)) {
                 this.currentStep = step;
             }
         },
@@ -117,39 +118,24 @@ window.bookingApp = function () {
         },
 
         submitBooking(detail) {
-            const payload = {
+            // ✅ We use 'this' correctly here
+            const bookingData = {
                 service: this.service.name,
                 amount: this.service.amount,
+                staff: this.selectedStaff,
                 day: this.selectedDate.day,
                 month: this.selectedDate.month,
                 year: this.selectedDate.year,
-                staff: this.selectedStaff,
                 time: detail.time,
+                email: "{{ auth()->user()->email ?? '' }}"
             };
 
-            console.log('SUBMITTING:', payload); // debug
+            console.log('SAVING TO STORAGE:', bookingData);
 
-            fetch('/bookings/store', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(async res => {
-                let data = await res.json();
-                if (!res.ok) throw data;
-
-                alert("Booking successful!");
-                window.location.href = "/";
-            })
-            .catch(err => {
-                console.error("Booking Error:", err);
-                alert(err.error || "Something went wrong");
-            });
+            sessionStorage.setItem("pendingBooking", JSON.stringify(bookingData));
+            window.location.href = "/payment";
         }
-    }
+    }; // Only one closing brace here
 }
 </script>
 @endsection

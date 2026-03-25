@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ServicesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
@@ -33,3 +35,21 @@ Route::middleware([
         return view('homepage');
     });
 });
+
+Route::middleware(['auth'])->group(function () {
+Route::post('/bookings/{id}/refund', [ServicesController::class, 'refund']);
+
+Route::post('/api/payments/init', [PaymentController::class, 'initialize']);
+
+Route::get('/payment/callback', function () {
+    return redirect()->route('home')->with('success', 'Payment successful! Your booking is being processed.');
+})->name('payment.callback');
+
+
+Route::get('/payment', function () {
+    return view('payment');
+})->name('payment');
+});
+
+
+Route::post('/payments/webhook', [PaymentController::class, 'webhook']);

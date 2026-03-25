@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckUserRole::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+        '/payments/webhook',
+        'api/payments/init',
+    ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

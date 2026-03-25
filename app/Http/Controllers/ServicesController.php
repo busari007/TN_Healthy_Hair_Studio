@@ -11,6 +11,8 @@ use App\Models\User;
 use App\Mail\BookingCreatedMail;
 use App\Mail\BookingStatusMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ServicesController extends Controller
 {
@@ -138,88 +140,88 @@ public function bookedTimes(Request $request) {
     ]);
 }
 
-public function store(Request $request)
-{
-    $requestedTime = "{$request->day}-{$request->month}-{$request->year} {$request->time}";
-    $bookingWindow = \Carbon\Carbon::createFromFormat('j-n-Y g:iA', $requestedTime);
+// public function store(Request $request)
+// {
+//     $requestedTime = "{$request->day}-{$request->month}-{$request->year} {$request->time}";
+//     $bookingWindow = \Carbon\Carbon::createFromFormat('j-n-Y g:iA', $requestedTime);
 
-    if ($bookingWindow->lt(now()->addHours(12))) {
-        return response()->json([
-            'error' => 'Bookings must be made at least 12 hours in advance.'
-        ], 422);
-    }
+//     if ($bookingWindow->lt(now()->addHours(12))) {
+//         return response()->json([
+//             'error' => 'Bookings must be made at least 12 hours in advance.'
+//         ], 422);
+//     }
 
-        $booking = \App\Models\Booking::create([
-            'service' => $request->service,
-            'amount' => (int) $request->amount, // Force to integer
-            'day' => (int) $request->day,
-            'month' => (int) $request->month,
-            'year' => (int) $request->year,
-            'staff' => $request->staff,
-            'time' => $request->time,
-            'user_id' => Auth::id(),
-            'status' => 'pending',
-        ]);
+//         $booking = \App\Models\Booking::create([
+//             'service' => $request->service,
+//             'amount' => (int) $request->amount, // Force to integer
+//             'day' => (int) $request->day,
+//             'month' => (int) $request->month,
+//             'year' => (int) $request->year,
+//             'staff' => $request->staff,
+//             'time' => $request->time,
+//             'user_id' => Auth::id(),
+//             'status' => 'pending',
+//         ]);
 
-        try {
-        $user = Auth::user();
+//         try {
+//         $user = Auth::user();
         
-        // 1. Prepare Base Details
-        $details = [
-            'title'   => $request->service,
-            'message' => "{$user->name} booked for {$request->day}/{$request->month}/{$request->year} at {$request->time}",
-            'by'      => $user->name,
-            'amount'  => '₦' . number_format($request->amount),
-        ];
+//         // 1. Prepare Base Details
+//         $details = [
+//             'title'   => $request->service,
+//             'message' => "{$user->name} booked for {$request->day}/{$request->month}/{$request->year} at {$request->time}",
+//             'by'      => $user->name,
+//             'amount'  => '₦' . number_format($request->amount),
+//         ];
 
-// 1. Identify Recipients: Anyone with the role 'admin' OR the specific staff member
-$recipients = User::where('role', 'admin')
-    ->orWhere('name', $request->staff)
-    ->get();
+// // 1. Identify Recipients: Anyone with the role 'admin' OR the specific staff member
+// $recipients = User::where('role', 'admin')
+//     ->orWhere('name', $request->staff)
+//     ->get();
 
-// 2. Send notifications with custom URLs based on their role
-foreach ($recipients as $recipient) {
-    $notificationData = $details;
+// // 2. Send notifications with custom URLs based on their role
+// foreach ($recipients as $recipient) {
+//     $notificationData = $details;
     
-    // Check if the user has the 'admin' role for the URL
-    if ($recipient->role === 'admin') {
-        $notificationData['url'] = '/admin'; 
-    } else {
-        $notificationData['url'] = '/bookings/list';
-    }
+//     // Check if the user has the 'admin' role for the URL
+//     if ($recipient->role === 'admin') {
+//         $notificationData['url'] = '/admin'; 
+//     } else {
+//         $notificationData['url'] = '/bookings/list';
+//     }
 
-    $recipient->notify(new GeneralNotification($notificationData));
-}
+//     $recipient->notify(new GeneralNotification($notificationData));
+// }
 
- $recipients = \App\Models\User::where('role', 'admin')
-            ->orWhere('name', $request->staff)
-            ->pluck('email')
-            ->toArray();
+//  $recipients = \App\Models\User::where('role', 'admin')
+//             ->orWhere('name', $request->staff)
+//             ->pluck('email')
+//             ->toArray();
 
-        // 2. Send the Mail
-        if (!empty($recipients)) {
-            Mail::to($recipients)->send(new BookingCreatedMail($booking));
-        }
+//         // 2. Send the Mail
+//         if (!empty($recipients)) {
+//             Mail::to($recipients)->send(new BookingCreatedMail($booking));
+//         }
 
-        return response()->json(['success' => true]);
+//         return response()->json(['success' => true]);
 
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 400);
-    }
-}
+//     } catch (\Exception $e) {
+//         return response()->json(['error' => $e->getMessage()], 400);
+//     }
+// }
 
 public function getBookings(Request $request)
 {
     if ($request->ajax()) {
         $user = Auth::user();
         
-        // 1. Add ->latest() here to order by created_at DESC
-        $query = \App\Models\Booking::select(['id', 'service', 'staff', 'day', 'month', 'year', 'time', 'status', 'user_id', 'created_at'])
-            ->latest(); 
+        $query = \App\Models\Booking::select([
+            'id', 'service', 'staff', 'day', 'month', 'year', 
+            'time', 'status', 'user_id', 'created_at', 'is_refunded'
+        ])->latest(); 
 
-        // Filter based on Role
         if ($user->role === 'admin') {
-            // Admins see everything
+            // No extra filter
         } elseif ($user->role === 'staff') {
             $query->where('staff', $user->name); 
         } else {
@@ -228,10 +230,21 @@ public function getBookings(Request $request)
 
         return DataTables::of($query)
             ->addIndexColumn()
+            // 1. Convert created_at to Africa/Lagos (WAT)
+            ->editColumn('created_at', function($row) {
+                return $row->created_at->timezone('Africa/Lagos')->toDateTimeString();
+            })
             ->editColumn('date', function($row){
                 return "{$row->day}/{$row->month}/{$row->year}";
             })
+            // 2. Enhanced Styling for Status & Refunded
             ->editColumn('status', function($row) {
+                if ($row->is_refunded) {
+                    return '<span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border bg-amber-50 text-amber-600 border-amber-200 shadow-sm">
+                                ↺ Refunded
+                            </span>';
+                }
+
                 $status = strtolower($row->status);
                 $classes = match($status) {
                     'approved' => 'bg-green-100 text-green-700 border-green-200',
@@ -253,6 +266,7 @@ public function getBookings(Request $request)
     
     return view('bookings');
 }
+
 
 
 public function updateStatus($id, Request $request)
@@ -285,7 +299,7 @@ public function updateStatus($id, Request $request)
             'message' => "The {$booking->service} for {$booking->day}/{$booking->month} has been {$request->status}.",
             'by'      => $currentUser->name,
             'amount'  => '₦' . number_format($booking->amount),
-            'url'     => '/bookings'
+            'url'     => '/bookings/list'
         ]));
         
         // Send status email to client
@@ -320,5 +334,101 @@ public function updateStatus($id, Request $request)
     ]);
 }
 
+public function refund($id) {
+    $booking = \App\Models\Booking::with('user')->findOrFail($id);
+    $currentUser = Auth::user();
+
+    // 1. 12-Hour Rule Check
+    $bookingTime = \Carbon\Carbon::createFromFormat('j-n-Y g:iA', "{$booking->day}-{$booking->month}-{$booking->year} {$booking->time}");
+    
+    // If current time is within 12 hours of the appointment
+    if (now()->diffInHours($bookingTime, false) < 12) {
+        return response()->json([
+            'error' => 'Refunds are not allowed within 12 hours of the appointment.'
+        ], 422);
+    }
+
+    // 2. Security & Status Checks
+    if ($currentUser->role !== 'admin' && $booking->user_id !== $currentUser->id) {
+        return response()->json(['error' => 'Unauthorized action.'], 403);
+    }
+
+    if ($booking->is_refunded) {
+        return response()->json(['error' => 'This booking has already been refunded.'], 422);
+    }
+
+    return $this->executeRefund($booking, $currentUser);
+}
+
+/**
+ * Extracted the actual Paystack call so it can be reused by updateStatus
+ */
+private function executeRefund($booking, $currentUser) {
+    if (!$booking->payment_reference) {
+        return response()->json(['error' => 'No payment reference found.'], 400);
+    }
+
+    $response = Http::withoutVerifying()
+        ->withHeaders([
+            'Authorization' => 'Bearer ' . trim(env('PAYSTACK_SECRET_KEY')),
+            'Content-Type'  => 'application/json',
+        ])
+        ->post('https://api.paystack.co/refund', [
+            'transaction' => $booking->payment_reference,
+            'amount'      => (int)($booking->amount * 100) 
+        ]);
+
+    $data = $response->json();
+
+    if (isset($data['status']) && $data['status'] === true) {
+        $booking->update([
+            'is_refunded' => true,
+            'status' => 'rejected',
+            'refund_id' => $data['data']['id'] ?? null
+        ]);
+
+        // --- START NOTIFICATIONS & EMAILS ---
+
+        $details = [
+            'title'   => "Booking Refunded",
+            'message' => "The refund for {$booking->service} has been processed successfully.",
+            'by'      => $currentUser->name,
+            'amount'  => '₦' . number_format($booking->amount),
+        ];
+
+        // A. Notify the Client (The one getting the money)
+        $client = $booking->user;
+        if ($client) {
+            $clientData = $details;
+            $clientData['url'] = '/bookings/list';
+            $client->notify(new \App\Notifications\GeneralNotification($clientData));
+        }
+
+        // B. Notify Admins and Staff
+        $recipients = \App\Models\User::where('role', 'admin')
+            ->orWhere('name', $booking->staff)
+            ->get();
+
+        foreach ($recipients as $recipient) {
+            // Don't send a bell notification to the person who clicked "Refund"
+            if ($recipient->id !== $currentUser->id) {
+                $notifData = $details;
+                $notifData['url'] = ($recipient->role === 'admin') ? '/admin' : '/bookings/list';
+                $recipient->notify(new \App\Notifications\GeneralNotification($notifData));
+            }
+        }
+
+        // C. Send the Status Email (Use your existing BookingStatusMail)
+        $emailList = $recipients->pluck('email')->push($client->email)->unique()->toArray();
+        if (!empty($emailList)) {
+            \Illuminate\Support\Facades\Mail::to($emailList)->send(new \App\Mail\BookingStatusMail($booking));
+        }
+
+        return response()->json(['success' => true, 'message' => 'Refund processed successfully!']);
+    }
+
+    Log::error('Paystack Refund Failed', ['response' => $data]);
+    return response()->json(['error' => $data['message'] ?? 'Refund failed'], 400);
+}
 
 }

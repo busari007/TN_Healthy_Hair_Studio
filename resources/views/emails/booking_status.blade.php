@@ -26,36 +26,52 @@
             </div>
 
             <div class="content">
-                <div class="title">Booking For {{ $booking->service }} On {{ $booking->time }} Has Been {{ $booking->status }}</div>
-                
-                <table width="100%" cellpadding="10" cellspacing="0">
-                    <tr>
-                        <td class="label">Service</td>
-                        <td class="value" align="right">{{ $booking->service }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">Date</td>
-                        <td class="value" align="right">{{ $booking->day }}/{{ $booking->month }}/{{ $booking->year }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">Time</td>
-                        <td class="value" align="right">{{ $booking->time }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">Status</td>
-                        <td class="value" align="right">{{ $booking->status }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">Amount</td>
-                        <td class="amount-tag" align="right">₦{{ number_format($booking->amount) }}</td>
-                    </tr>
-                </table>
-            </div>
+    <!-- Updated Title: Shows "Refunded" instead of "Rejected" for better customer experience -->
+    <div class="title">
+        @if($booking->status === 'rejected')
+            Your Booking for {{ $booking->service }} was Refunded
+        @else
+            Booking For {{ $booking->service }} On {{ $booking->time }} Has Been {{ ucfirst($booking->status) }}
+        @endif
+    </div>
+    
+    <table width="100%" cellpadding="10" cellspacing="0">
+        <tr>
+            <td class="label">Service</td>
+            <td class="value" align="right">{{ $booking->service }}</td>
+        </tr>
+        <tr>
+            <td class="label">Date/Time</td>
+            <td class="value" align="right">{{ $booking->day }}/{{ $booking->month }}/{{ $booking->year }} @ {{ $booking->time }}</td>
+        </tr>
+        <tr>
+            <td class="label">Status</td>
+            <td class="value" align="right">
+                <!-- Change the text display for the user -->
+                {{ $booking->status === 'rejected' ? 'Refunded' : ucfirst($booking->status) }}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Amount</td>
+            <td class="amount-tag" align="right">₦{{ number_format($booking->amount) }}</td>
+        </tr>
+    </table>
 
-            <div class="footer">
-                <p style="font-size: 12px; color: #9ca3af;">Please log in to your dashboard to manage this request.</p>
-                <a href="{{ url('/signin') }}" class="btn">Open Dashboard</a>
-            </div>
+    <!-- New Refund Message -->
+    @if($booking->status === 'rejected')
+        <div style="margin-top: 20px; padding: 15px; background-color: #fff7ed; border: 1px solid #ffedd5; border-radius: 8px; color: #9a3412; font-size: 13px; text-align: center;">
+            <strong>Refund Processed:</strong> Since your booking was not approved, we have automatically reversed your payment. Please allow 3-5 business days for it to appear in your account.
+        </div>
+    @endif
+</div>
+
+<div class="footer">
+    <p style="font-size: 12px; color: #9ca3af;">
+        {{ $booking->status === 'rejected' ? 'Your booking has been cancelled and refunded.' : 'Please log in to your dashboard to manage this request.' }}
+    </p>
+    <a href="{{ url('/signin') }}" class="btn">Open Dashboard</a>
+</div>
+
         </div>
     </div>
 </body>

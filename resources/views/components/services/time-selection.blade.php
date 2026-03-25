@@ -97,14 +97,33 @@ window.timeSelection = function () {
             return this.bookedTimes.some(booked => clean(booked) === clean(time));
         },
 
-        selectTime(time) {
-            if (this.isBooked(time)) return;
-            
-            this.selectedTime = time;
-            
-            // This triggers the 'submitBooking' function in the parent 'bookingApp'
-            this.$dispatch('time-selected', { time: time });
-        },
+ selectTime(time) {
+    if (this.isBooked(time)) return;
+
+    this.selectedTime = time;
+
+    const parent = this.getParent();
+
+    const bookingData = {
+        // ✅ Change these to match your bookingApp structure
+        service: parent.service.name,    
+        amount: parent.service.amount,   
+        staff: parent.selectedStaff,
+        day: parent.selectedDate.day,
+        month: parent.selectedDate.month,
+        year: parent.selectedDate.year,
+        time: time,
+        email: "{{ auth()->user()->email ?? '' }}" 
+    };
+
+    console.log("SUCCESSFUL DATA:", bookingData);
+
+    // ✅ Store for payment page
+    sessionStorage.setItem("pendingBooking", JSON.stringify(bookingData));
+
+    // ✅ Now you can uncomment the redirect
+    window.location.href = "/payment";
+},
 
         buttonClass(time) {
             if (this.isBooked(time)) {
