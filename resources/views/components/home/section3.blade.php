@@ -43,6 +43,8 @@
 <div 
     x-show="showModal"
     x-transition
+    x-transition.opacity
+    x-cloak
     @click="closeModal()"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
 >

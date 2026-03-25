@@ -64,17 +64,29 @@ public function login(Request $request)
         'password' => ['required'],
     ]);
 
+    // Attempt the standard login
     if (!Auth::attempt($credentials)) {
         return back()
             ->withErrors(['email' => 'Invalid credentials'])
             ->withInput();
     }
 
-    $request->session()->regenerate();
-
+    // Check the user's status immediately after successful attempt
     $user = Auth::user();
 
-    // 🔥 Role-based redirect (like your React logic)
+    if ($user->status === 'disabled') {
+        Auth::logout(); // 👈 Kick them back out
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return back()
+            ->withErrors(['email' => 'Your account has been disabled. Please contact support.'])
+            ->withInput();
+    }
+
+    // 3. Proceed with normal login for enabled users
+    $request->session()->regenerate();
+
     if ($user->role === 'admin') {
         return redirect('/admin');
     }

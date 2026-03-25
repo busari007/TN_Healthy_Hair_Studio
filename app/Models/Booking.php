@@ -17,7 +17,8 @@ use Illuminate\Database\Eloquent\Model;
         'name',
         'user_id',
         'email',
-        'status'
+        'status',
+        'reminder_sent'
     ];
 
     public function user()
