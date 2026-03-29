@@ -60,6 +60,21 @@ public function bookedDates() {
     return response()->json(['bookedDates' => $fullyBookedDates]);
 }
 
+   public function redirectToWhatsApp(Request $request)
+    {
+        $serviceName = $request->query('service_name', 'a service');
+        $phoneNumber = '2348076865464'; // International format without the '+'
+        
+        // Define your message template
+        $message = "Hello, I would like to book the {$serviceName}. Is it available for booking?";
+        
+        // URL encode the message for the WhatsApp API
+        $encodedMessage = urlencode($message);
+        
+        // Redirect the user to the WhatsApp "Click to Chat" link
+        return redirect("https://wa.me/{$phoneNumber}?text={$encodedMessage}");
+    }
+
 public function checkStaffAvailability(Request $request) 
 {
     $staff = $request->staff;

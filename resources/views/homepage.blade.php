@@ -9,5 +9,6 @@
     <x-home.section5 />
     <x-home.section6 />
     <x-home.contactUs />
+    <x-home.footer />
 
 @endsection

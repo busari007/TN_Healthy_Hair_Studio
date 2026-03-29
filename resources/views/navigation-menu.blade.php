@@ -61,10 +61,10 @@
         {{-- RIGHT SIDE --}}
         <div class="flex items-center gap-3 Playfair text-white">
 
-            @guest
+            {{-- @guest
                 <a href="{{ route('signin') }}" class="hidden sm:block">Login</a>
                 <a href="{{ route('signup') }}" class="hidden sm:block">Sign Up</a>
-            @endguest
+            @endguest --}}
 
 @auth
     {{-- PROFILE LINK --}}
@@ -118,10 +118,10 @@
             </form>
         @endauth
 
-        @guest
+        {{-- @guest
             <a href="{{ route('signin') }}" class="block">Login</a>
             <a href="{{ route('signup') }}" class="block">Sign Up</a>
-        @endguest
+        @endguest --}}
     </div>
 </nav>
 

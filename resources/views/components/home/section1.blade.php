@@ -23,14 +23,13 @@
     {{-- Content --}}
     <div class="relative z-20 flex flex-col items-center justify-center text-white text-center mt-20 lg:mt-40">
         
-        <h1 class="Playfair text-4xl lg:text-5xl xl:text-6xl leading-tight lg:leading-[1.15] drop-shadow-md">
-            Where Beauty <br class="lg:hidden"/>
-            Blooms <br class="hidden lg:block"/>
-            In Stillness
+        <h1 class="Playfair text-4xl lg:text-5xl xl:text-6xl leading-tight lg:leading-[1.20] drop-shadow-md">
+            Your Journey To Healthy Hair<br/>
+            Starts Here 
         </h1>
 
         <p class="Lato text-sm md:text-base xl:text-xl mt-5 max-w-[70%] lg:max-w-[50%] leading-relaxed opacity-95">
-            A calm, elegant space for hair care and wellness — designed to relax your mind and gently restore your natural glow.
+            Learn the science needed to achieve waist length hair for black women
         </p>
 
         <a href="#services" class="z-30 mt-12 md:mt-16">

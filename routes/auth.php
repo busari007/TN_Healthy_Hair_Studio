@@ -18,7 +18,9 @@ Route::post('/signup',[AuthController::class, 'register'])->name('register');
 
 
 Route::middleware(['auth', 'role:admin,staff,client'])->group(function () {
-    Route::get('/book-a-service', function () {return view('services');})->name('services');
+    // Route::get('/book-a-service', function () {return view('services');})->name('services');
+    Route::get('/book-service-whatsapp', [ServicesController::class, 'redirectToWhatsApp'])->name('whatsapp.book');
+
 
     Route::get('/api/bookings/booked-dates', [ServicesController::class, 'bookedDates']);
     Route::get('/api/bookings/check-staff-availability', [ServicesController::class, 'checkStaffAvailability']);

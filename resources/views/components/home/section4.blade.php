@@ -19,23 +19,23 @@
             $benefits = [
                 [
                     "image" => "https://cdn-icons-png.flaticon.com/128/1490/1490749.png",
-                    "name" => "Deeper Relaxation",
-                    "description" => "Each session eases physical and emotional tension creating space for true rest."
+                    "name" => "Improves Elasticity",
+                    "description" => "Each session improves the resilience of the hair shaft."
                 ],
                 [
                     "image" => "https://cdn-icons-png.flaticon.com/128/10176/10176866.png",
-                    "name" => "Holistic Wellbeing",
-                    "description" => "We blend touch, scent, and space in harmony to restore both body and mind."
+                    "name" => "Increases Hydration Of The Hair",
+                    "description" => "Each session reinforces hydration and moisture in the hair strands."
                 ],
                 [
                     "image" => "https://cdn-icons-png.flaticon.com/128/9813/9813286.png",
-                    "name" => "Natural Radiance",
-                    "description" => "Circulation-boosting care enhances your glow from within."
+                    "name" => "Prevents Breakage",
+                    "description" => "Each session strengthens the hair shaft."
                 ],
                 [
                     "image" => "https://cdn-icons-png.flaticon.com/128/14528/14528562.png",
-                    "name" => "Mindful Moments",
-                    "description" => "Our space invites you to slow down and reconnect with what truly matters."
+                    "name" => "Hair Coaching",
+                    "description" => "You are taught about your hair's porosity, elasticity, texture, density and what it needs to thrive."
                 ],
             ];
         @endphp

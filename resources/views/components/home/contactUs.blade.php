@@ -11,7 +11,7 @@
         message: '',
         submitForm() {
             const whatsappMessage = `Hello, My name is ${this.firstName} ${this.lastName}%0A, my email address is ${this.email}%0A and I want to make an Inquiry saying: ${this.message}`;
-            const url = `https://wa.me/2347035421098?text=${whatsappMessage}`;
+            const url = `https://wa.me/2348076865464?text=${whatsappMessage}`;
             window.open(url, '_blank');
         }
     }"

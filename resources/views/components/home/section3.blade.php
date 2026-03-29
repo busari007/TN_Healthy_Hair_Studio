@@ -91,12 +91,18 @@
         </div>
 
         {{-- BOOK BUTTON --}}
-<a 
+{{-- <a 
     :href="`/book-a-service?service_name=${encodeURIComponent(selectedService.name)}&service_amount=${selectedService.amount}`"
     class="block mt-6 w-full text-center bg-[#F0CCCE] py-2 rounded-xl text-black font-semibold"
 >
     Book Now
+</a> --}}
+
+<a :href="`/book-service-whatsapp?service_name=${encodeURIComponent(selectedService.name)}`" 
+   class="block mt-6 w-full text-center bg-[#F0CCCE] py-2 rounded-xl text-black font-semibold">
+   Book on WhatsApp
 </a>
+
 
     </div>
 </div>
@@ -116,7 +122,7 @@ function servicesComponent() {
                 name: 'Moisture Fusion',
                 image: '/images/Moisture_Fusion.webp',
                 amount: 10000,
-                time: '60 - 90 Minutes',
+                time: '150 Minutes(2.5 hours)',
                 description: 'Revive and hydrate your hair...',
                 includes: [
                     'Hot Oil Treatment',
@@ -124,12 +130,13 @@ function servicesComponent() {
                     '3-step Shampoo System',
                     'Deep Conditioning',
                     'Split Ends Trimming',
-                    'Protective Style'
+                    'Protective Style',
+                    'Consultation'
                 ],
                 policyNotes: [
-                    '₦10,000 penalty for late arrival over 10 min',
+                    '₦5,000 penalty for late arrival over 10 min',
                     'Booking deposit is non-refundable',
-                    'Cancellation without 12 hr notice = ₦10,000 fee'
+                    'Cancellation without 12 hr notice = ₦5,000 fee'
                 ],
                 priceNote: 'Extra charges may apply'
             },
@@ -137,53 +144,58 @@ function servicesComponent() {
                 name: 'Strengthening / Bond Repair',
                 image: '/images/Protein Strength Treatment.webp',
                 amount: 10000,
-                time: '60 Minutes',
+                time: '180 Minutes(3 hours)',
                 description: 'Restore your hair strength...',
                 includes: [
+                    '3 System Shampoo',
                     'Protein Treatment',
                     'Deep Conditioning',
-                    'Protective Styling'
+                    'Protective Styling',
+                    'Consultation'
                 ],
                 policyNotes: [
-                    '₦10,000 penalty for late arrival over 10 min',
+                    '₦5,000 penalty for late arrival over 10 min',
                     'Booking deposit is non-refundable',
-                    'Cancellation without 12 hr notice = ₦10,000 fee'
+                    'Cancellation without 12 hr notice = ₦5,000 fee'
                 ],
                 priceNote: 'Extra charges may apply'
             },
-            {
-                name: 'Hair Restoration',
-                image: '/images/New Client Hair Repair Hair Restoration.webp',
-                amount: 10000,
-                time: '30 - 40 Minutes',
-                description: 'Begin your healthy hair journey...',
-                includes: [
-                    'Consultation',
-                    'Scalp Analysis',
-                    'Treatment Plan'
-                ],
-                policyNotes: [
-                    '₦10,000 penalty for late arrival over 10 min',
-                    'Booking deposit is non-refundable',
-                    'Cancellation without 12 hr notice = ₦10,000 fee'
-                ],
-                priceNote: 'Consultation fee deducted later'
-            },
+            
+{
+    name: 'Miracle Knots',
+    image: '/images/Miracle Knots.webp', 
+    amount: 10000,
+    time: '300 minutes(5 hours)',
+    description: 'Professional braiding service for a flawless look...',
+    includes: [
+        'Braiding',
+        'Hair Prep',
+        'Finishing Touches',
+        'Consultation'
+    ],
+    policyNotes: [
+        '₦5,000 penalty for late arrival over 10 min',
+        'Booking deposit is non-refundable',
+        'Cancellation without 12 hr notice = ₦5,000 fee'
+    ],
+    priceNote: 'Price may vary based on length or thickness'
+},
             {
                 name: 'DIY Hair Care',
                 image: '/images/Do It Yourself (DIY) Hair Care.webp',
                 amount: 10000,
-                time: '30 - 40 Minutes',
+                time: '120 Minutes(2 hours)',
                 description: 'Take control of your hair care...',
                 includes: [
                     'Routine Plan',
                     'Product Guidance',
-                    'Demo'
+                    'Demo',
+                    'Consultation'
                 ],
                 policyNotes: [
-                    '₦10,000 penalty for late arrival over 10 min',
+                    '₦5,000 penalty for late arrival over 10 min',
                     'Booking deposit is non-refundable',
-                    'Cancellation without 12 hr notice = ₦10,000 fee'
+                    'Cancellation without 12 hr notice = ₦5,000 fee'
                 ],
                 priceNote: 'Customized to your needs'
             },
@@ -191,17 +203,17 @@ function servicesComponent() {
                 name: 'Relaxer',
                 image: '/images/Chemical Process (Relaxer).webp',
                 amount: 10000,
-                time: '60 Minutes',
+                time: '120 Minutes(2 hours)',
                 description: 'Professional relaxing service...',
                 includes: [
-                    'Application',
-                    'Conditioning',
-                    'Styling'
+                    'Product Used: Affirm Relaxer',
+                    'Relaxing And Deep Conditioning Treatment',
+                    'Consultation'
                 ],
                 policyNotes: [
-                    '₦10,000 penalty for late arrival over 10 min',
+                    '₦5,000 penalty for late arrival over 10 min',
                     'Booking deposit is non-refundable',
-                    'Cancellation without 12 hr notice = ₦10,000 fee'
+                    'Cancellation without 12 hr notice = ₦5,000 fee'
                 ],
                 priceNote: 'Prep not included'
             },
@@ -209,17 +221,18 @@ function servicesComponent() {
                 name: 'Dandruff Treatment',
                 image: '/images/Dandruff.webp',
                 amount: 10000,
-                time: '30 - 40 Minutes',
+                time: '120 Minutes(2 hours)',
                 description: 'Say goodbye to flakes...',
                 includes: [
                     'Scalp Detox',
                     'Treatment',
-                    'Conditioning'
+                    'Conditioning',
+                    'Consultation'
                 ],
                 policyNotes: [
-                    '₦10,000 penalty for late arrival over 10 min',
+                    '₦5,000 penalty for late arrival over 10 min',
                     'Booking deposit is non-refundable',
-                    'Cancellation without 12 hr notice = ₦10,000 fee'
+                    'Cancellation without 12 hr notice = ₦5,000 fee'
                 ],
                 priceNote: 'Best with weekly sessions'
             }
