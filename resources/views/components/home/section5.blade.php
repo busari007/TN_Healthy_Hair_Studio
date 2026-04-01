@@ -1,24 +1,24 @@
 {{-- ========================= --}}
 {{-- SECTION 5: REVIEWS --}}
 {{-- ========================= --}}
-<div class="w-full mt-16">
+<div class="w-full mt-10 mb-16">
 
     @php
         $reviews = [
             [
-                "description" => "From the moment I walked in, the calming scent and music put me at ease...",
+                "description" => "From the moment I walked in, the warm greeting and the aroma of premium hair masques put me at ease...",
                 "name" => "Isabelle M."
             ],
             [
-                "description" => "Serene Bloom has become my go-to escape from a hectic schedule...",
+                "description" => "The ultimate sanctuary for both my strands and my peace of mind...",
                 "name" => "Clara H."
             ],
             [
-                "description" => "After just one body scrub session, my skin felt so smooth...",
+                "description" => "After just one session in the chair, my hair felt so transformed and smooth...",
                 "name" => "Elena T."
             ],
             [
-                "description" => "It’s more than a spa — it’s a sanctuary...",
+                "description" => "It’s more than a salon — it’s a sanctuary where my hair and my spirit both get the care they deserve...",
                 "name" => "Sophie D."
             ],
         ];
@@ -42,7 +42,7 @@
                 <div class="w-[90%] h-[264px] lg:h-[280px] flex flex-col items-center text-center bg-white justify-between p-7">
 
                     <div>
-                        <img src="{{ asset('images/5stars.png') }}" class="w-20 mb-3">
+                        <img src="{{ asset('images/5stars.png') }}" class="w-20 mb-3 mx-auto">
 
                         <p class="Lato text-sm">
                             {{ $review['description'] }}

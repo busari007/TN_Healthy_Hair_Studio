@@ -31,7 +31,7 @@
         <!-- Contact Info -->
         <div class="flex flex-col gap-y-2">
             <h1 class="Playfair text-lg mb-1">CONTACT US</h1>
-            <p class="Lato">+234 807 686 5464</p>
+            <p class="Lato">+234 703 542 1098</p>
             <p class="Lato">tnhealthyhairstudio@gmail.com</p>
         </div>
 

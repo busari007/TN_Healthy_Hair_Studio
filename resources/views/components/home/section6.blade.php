@@ -10,9 +10,9 @@
 
     @php
         $images = [
-            asset('images/GalleryImage1.webp'),
-            asset('images/GalleryImage2.webp'),
-            asset('images/GalleryImage4.webp'),
+            asset('images/Moisture Fusion Treatment(1).webp'),
+            asset('images/spa image(2).webp'),
+            asset('images/spa image(3).webp'),
         ];
     @endphp
 

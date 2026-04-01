@@ -20,7 +20,7 @@
         {{-- Image --}}
         <div class="w-[90%] lg:w-1/2 flex justify-center">
             <img 
-                src="{{ asset('images/section2_spa_image.webp') }}"
+                src="{{ asset('images/spa image.webp') }}"
                 class="w-full rounded-xl shadow-lg"
             >
         </div>

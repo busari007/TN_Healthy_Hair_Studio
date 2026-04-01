@@ -3,12 +3,12 @@
 {{-- ========================= --}}
 <div 
     x-data="servicesComponent()"
-    class="w-full bg-[#222222] text-white pb-24"
+    class="w-full bg-[#222222] text-white pt-16 pb-20"
 >
 
     {{-- Header --}}
     <div id="services" class="text-center px-4 lg:px-20">
-        <h1 class="Playfair text-3xl lg:text-5xl mt-12 lg:mt-24">
+        <h1 class="Playfair text-3xl lg:text-5xl lg:mt-30">
             Our Services
         </h1>
         <p class="Lato text-sm max-w-[85%] mx-auto mt-4">
@@ -120,7 +120,7 @@ function servicesComponent() {
         services: [
             {
                 name: 'Moisture Fusion',
-                image: '/images/Moisture_Fusion.webp',
+                image: '/images/Moisture Fusion Treatment(2).webp',
                 amount: 10000,
                 time: '150 Minutes(2.5 hours)',
                 description: 'Revive and hydrate your hair...',
@@ -142,7 +142,7 @@ function servicesComponent() {
             },
             {
                 name: 'Strengthening / Bond Repair',
-                image: '/images/Protein Strength Treatment.webp',
+                image: '/images/Strengthening Bond Repair.webp',
                 amount: 10000,
                 time: '180 Minutes(3 hours)',
                 description: 'Restore your hair strength...',
@@ -182,7 +182,7 @@ function servicesComponent() {
 },
             {
                 name: 'DIY Hair Care',
-                image: '/images/Do It Yourself (DIY) Hair Care.webp',
+                image: '/images/Loose Hair.webp',
                 amount: 10000,
                 time: '120 Minutes(2 hours)',
                 description: 'Take control of your hair care...',
@@ -201,7 +201,7 @@ function servicesComponent() {
             },
             {
                 name: 'Relaxer',
-                image: '/images/Chemical Process (Relaxer).webp',
+                image: '/images/Safe Relaxer.webp',
                 amount: 10000,
                 time: '120 Minutes(2 hours)',
                 description: 'Professional relaxing service...',
@@ -219,7 +219,7 @@ function servicesComponent() {
             },
             {
                 name: 'Dandruff Treatment',
-                image: '/images/Dandruff.webp',
+                image: '/images/Hair Washing.webp',
                 amount: 10000,
                 time: '120 Minutes(2 hours)',
                 description: 'Say goodbye to flakes...',
