@@ -3,7 +3,7 @@
 {{-- ========================= --}}
 <div 
     x-data="servicesComponent()"
-    class="w-full bg-[#222222] text-white pt-16 pb-20"
+    class="w-full bg-[#222222] text-white pt-16 pb-16 lg:pb-20"
 >
 
     {{-- Header --}}
@@ -12,7 +12,7 @@
             Our Services
         </h1>
         <p class="Lato text-sm max-w-[85%] mx-auto mt-4">
-            Each treatment is crafted to restore balance and reveal your natural glow.
+            Each Treatment is crafted to restore the hair's PH, Strength and Moisture Levels
         </p>
     </div>
 
@@ -72,7 +72,10 @@
 
         {{-- Price --}}
         <p class="font-bold mb-1 text-black">
-            Booking Fee: ₦<span x-text="selectedService.amount"></span>
+            Booking Fee: ₦<span x-text="selectedService.amount"></span> (is deducted from service fee)
+        </p>
+        <p class="font-bold mb-1 text-black">
+            Service Fee: ₦<span x-text="selectedService.serviceAmount"></span>
         </p>
         <p class="text-sm text-gray-500 mb-4"
            x-text="selectedService.time"></p>
@@ -120,8 +123,9 @@ function servicesComponent() {
         services: [
             {
                 name: 'Moisture Fusion',
-                image: '/images/Moisture Fusion Treatment(2).webp',
+                image: '/images/Moisture Fusion Treatment(4).webp',
                 amount: 10000,
+                serviceAmount: 35000,
                 time: '150 Minutes(2.5 hours)',
                 description: 'Revive and hydrate your hair...',
                 includes: [
@@ -144,6 +148,7 @@ function servicesComponent() {
                 name: 'Strengthening / Bond Repair',
                 image: '/images/Strengthening Bond Repair.webp',
                 amount: 10000,
+                serviceAmount: 35000,
                 time: '180 Minutes(3 hours)',
                 description: 'Restore your hair strength...',
                 includes: [
@@ -163,8 +168,9 @@ function servicesComponent() {
             
 {
     name: 'Miracle Knots',
-    image: '/images/Miracle Knots.webp', 
+    image: '/images/Miracle Knots(2).webp', 
     amount: 10000,
+    serviceAmount: 55000,
     time: '300 minutes(5 hours)',
     description: 'Professional braiding service for a flawless look...',
     includes: [
@@ -182,8 +188,9 @@ function servicesComponent() {
 },
             {
                 name: 'DIY Hair Care',
-                image: '/images/Loose Hair.webp',
+                image: '/images/DIY Haircare.webp',
                 amount: 10000,
+                serviceAmount: 35000,
                 time: '120 Minutes(2 hours)',
                 description: 'Take control of your hair care...',
                 includes: [
@@ -203,6 +210,7 @@ function servicesComponent() {
                 name: 'Relaxer',
                 image: '/images/Safe Relaxer.webp',
                 amount: 10000,
+                serviceAmount: 35000,
                 time: '120 Minutes(2 hours)',
                 description: 'Professional relaxing service...',
                 includes: [
@@ -221,6 +229,7 @@ function servicesComponent() {
                 name: 'Dandruff Treatment',
                 image: '/images/Hair Washing.webp',
                 amount: 10000,
+                serviceAmount: 35000,
                 time: '120 Minutes(2 hours)',
                 description: 'Say goodbye to flakes...',
                 includes: [

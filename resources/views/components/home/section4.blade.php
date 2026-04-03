@@ -1,7 +1,7 @@
 {{-- ========================= --}}
 {{-- SECTION 4: BENEFITS --}}
 {{-- ========================= --}}
-<div class="w-full bg-[#F7F5F2] mt-10 lg:mt-30">
+<div class="w-full bg-[#F7F5F2] mt-0 lg:mt-30">
     <div class="flex flex-col items-center">
 
         {{-- Header --}}
