@@ -22,8 +22,8 @@
         <!-- Socials -->
         <div class="flex flex-col gap-y-2">
             <h1 class="Playfair text-lg mb-1">FOLLOW US</h1>
-            {{-- <a href="#" class="Lato hover:text-[#F0CCCE]">YouTube</a>
-            <a href="#" class="Lato hover:text-[#F0CCCE]">TikTok</a> --}}
+            {{-- <a href="#" class="Lato hover:text-[#F0CCCE]">YouTube</a> --}}
+            <a href="https://www.tiktok.com/@tnhealthyhairstudio?lang=en-GB" class="Lato hover:text-[#F0CCCE]">TikTok</a>
             <a href="https://share.google/0CJql6zx6DfovEnen" class="Lato hover:text-[#F0CCCE]">Google My Business</a>
         </div>
 
