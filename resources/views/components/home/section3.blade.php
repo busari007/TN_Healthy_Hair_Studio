@@ -48,10 +48,21 @@
     @click="closeModal()"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
 >
+
     <div 
-        @click.stop
-        class="bg-white text-black w-[90%] md:w-[500px] rounded-xl p-5 max-h-[90vh] overflow-y-auto"
-    >
+    @click.stop
+    class="bg-white text-black w-[90%] md:w-[500px] rounded-xl p-5 max-h-[90vh] overflow-y-auto relative"
+>
+
+    <!-- CLOSE BUTTON -->
+<button 
+    @click="closeModal()"
+class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center 
+       rounded-full bg-[#F0CCCE] hover:opacity-80 
+       text-black text-lg transition"
+>
+    ✕
+</button>
 
         <h2 class="text-xl font-bold text-center mb-3 text-black"
             x-text="selectedService.name"></h2>
