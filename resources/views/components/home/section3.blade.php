@@ -113,10 +113,10 @@ class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center
 </a> --}}
 
 <a :href="`/book-service-whatsapp?service_name=${encodeURIComponent(selectedService.name)}`" 
+   @click="snaptr('track', 'SIGN_UP', { 'item_category': selectedService.name })"
    class="block mt-6 w-full text-center bg-[#F0CCCE] py-2 rounded-xl text-black font-semibold">
    Book on WhatsApp
 </a>
-
 
     </div>
 </div>
@@ -261,6 +261,14 @@ function servicesComponent() {
         openModal(service) {
             this.selectedService = service;
             this.showModal = true;
+
+            // ✅ Track View Content when modal opens
+            snaptr('track', 'VIEW_CONTENT', {
+                'item_ids': [service.name.replace(/\s+/g, '-').toLowerCase()], // Creating a slug from name
+                'item_category': 'Hair Treatment',
+                'price': service.serviceAmount,
+                'currency': 'NGN'
+            });
         },
 
         closeModal() {

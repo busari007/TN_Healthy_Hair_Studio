@@ -25,6 +25,28 @@
         </style>
 
         @livewireStyles
+
+<script type='text/javascript'>
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function()
+{a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};
+a.queue=[];var s='script';r=t.createElement(s);r.async=!0;
+r.src=n;var u=t.getElementsByTagName(s)[0];
+u.parentNode.insertBefore(r,u);})(window,document,
+'https://sc-static.net/scevent.min.js');
+
+// Initialize with the user's email if they are logged in
+snaptr('init', 'c04ebc1c-d33f-4ffe-9de5-4c9d9d50dabd', {
+    'user_email': '{{ auth()->user()->email ?? "" }}'
+});
+
+// Fire the Page View with dynamic location data
+snaptr('track', 'PAGE_VIEW', {
+    'user_email': '{{ auth()->user()->email ?? "" }}',
+    'geo_city': '{{ session('city') ?? "" }}', 
+    'geo_country': '{{ session('country') ?? "" }}'
+});
+</script>
+<!-- End Snap Pixel Code -->
     </head>
     <body class="font-sans antialiased">
         <x-banner />
