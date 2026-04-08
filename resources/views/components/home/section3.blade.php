@@ -92,7 +92,7 @@ class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center
            x-text="selectedService.time"></p>
 
         {{-- Policy --}}
-        <div class="border-t pt-3 mt-4">
+        {{-- <div class="border-t pt-3 mt-4">
             <h3 class="font-semibold mb-2 text-center text-black">Policy</h3>
             <ul class="list-disc pl-5 text-xs space-y-1 text-gray-600">
                 <template x-for="note in selectedService.policyNotes" :key="note">
@@ -102,7 +102,7 @@ class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center
 
             <p class="text-xs mt-3 italic text-center text-gray-500"
                x-text="selectedService.priceNote"></p>
-        </div>
+        </div> --}}
 
         {{-- BOOK BUTTON --}}
 {{-- <a 
