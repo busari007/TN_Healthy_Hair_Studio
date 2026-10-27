@@ -112,7 +112,10 @@ class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center
     Book Now
 </a> --}}
 
-<a :href="`/book-service-whatsapp?service_name=${encodeURIComponent(selectedService.name)}`" 
+<a
+    :href="selectedService.name
+        ? `/book-service-whatsapp?service_name=${encodeURIComponent(selectedService.name)}`
+        : null" 
    @click="snaptr('track', 'SIGN_UP', { 'item_category': selectedService.name })"
    class="block mt-6 w-full text-center bg-[#F0CCCE] py-2 rounded-xl text-black font-semibold">
    Book on WhatsApp
